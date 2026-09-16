@@ -1,6 +1,7 @@
 [workspace]
 members = [
     "crates/webcodex-admin",
+    "crates/webcodex-browser",
     "crates/webcodex-computer",
     "crates/webcodex-connector-runtime",
     "crates/webcodex-runner-config",

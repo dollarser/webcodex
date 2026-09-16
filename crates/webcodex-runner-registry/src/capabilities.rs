@@ -49,6 +49,9 @@ pub enum RunnerFeature {
     ManagedWorktree,
     SkillRuntime,
     SkillManagement,
+    BrowserObserve,
+    BrowserControl,
+    BrowserLaunch,
     ComputerObserve,
     ComputerApplicationDiscovery,
     ComputerApplicationLaunch,
@@ -113,6 +116,9 @@ const ALL_RUNNER_FEATURES: &[RunnerFeature] = &[
     RunnerFeature::ManagedWorktree,
     RunnerFeature::SkillRuntime,
     RunnerFeature::SkillManagement,
+    RunnerFeature::BrowserObserve,
+    RunnerFeature::BrowserControl,
+    RunnerFeature::BrowserLaunch,
     RunnerFeature::ComputerObserve,
     RunnerFeature::ComputerApplicationDiscovery,
     RunnerFeature::ComputerApplicationLaunch,
@@ -207,6 +213,9 @@ impl RunnerFeature {
             Self::ManagedWorktree => wire::RUNNER_CAPABILITY_MANAGED_WORKTREE,
             Self::SkillRuntime => wire::RUNNER_CAPABILITY_SKILL_RUNTIME,
             Self::SkillManagement => wire::RUNNER_CAPABILITY_SKILL_MANAGEMENT,
+            Self::BrowserObserve => wire::RUNNER_CAPABILITY_BROWSER_OBSERVE,
+            Self::BrowserControl => wire::RUNNER_CAPABILITY_BROWSER_CONTROL,
+            Self::BrowserLaunch => wire::RUNNER_CAPABILITY_BROWSER_LAUNCH,
             Self::ComputerObserve => wire::RUNNER_CAPABILITY_COMPUTER_OBSERVE,
             Self::ComputerApplicationDiscovery => {
                 wire::RUNNER_CAPABILITY_COMPUTER_APPLICATION_DISCOVERY
@@ -289,6 +298,9 @@ impl RunnerFeature {
             wire::RUNNER_CAPABILITY_MANAGED_WORKTREE => Self::ManagedWorktree,
             wire::RUNNER_CAPABILITY_SKILL_RUNTIME => Self::SkillRuntime,
             wire::RUNNER_CAPABILITY_SKILL_MANAGEMENT => Self::SkillManagement,
+            wire::RUNNER_CAPABILITY_BROWSER_OBSERVE => Self::BrowserObserve,
+            wire::RUNNER_CAPABILITY_BROWSER_CONTROL => Self::BrowserControl,
+            wire::RUNNER_CAPABILITY_BROWSER_LAUNCH => Self::BrowserLaunch,
             wire::RUNNER_CAPABILITY_COMPUTER_OBSERVE => Self::ComputerObserve,
             wire::RUNNER_CAPABILITY_COMPUTER_APPLICATION_DISCOVERY => {
                 Self::ComputerApplicationDiscovery
@@ -360,6 +372,9 @@ impl RunnerFeature {
             | Self::ManagedWorktree
             | Self::SkillRuntime
             | Self::SkillManagement
+            | Self::BrowserObserve
+            | Self::BrowserControl
+            | Self::BrowserLaunch
             | Self::ComputerObserve
             | Self::ComputerApplicationDiscovery
             | Self::ComputerApplicationLaunch
@@ -434,6 +449,9 @@ impl RunnerFeature {
             Self::ManagedWorktree => capabilities.managed_worktree,
             Self::SkillRuntime => capabilities.skill_runtime,
             Self::SkillManagement => capabilities.skill_management,
+            Self::BrowserObserve => capabilities.browser_observe,
+            Self::BrowserControl => capabilities.browser_control,
+            Self::BrowserLaunch => capabilities.browser_launch,
             Self::ComputerObserve => capabilities.computer_observe,
             Self::ComputerApplicationDiscovery => capabilities.computer_application_discovery,
             Self::ComputerApplicationLaunch => capabilities.computer_application_launch,

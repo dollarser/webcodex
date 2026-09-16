@@ -303,6 +303,37 @@ mod tests {
     }
 
     #[test]
+    fn browser_tools_do_not_expand_local_or_adaptive_direct_surfaces() {
+        assert_eq!(
+            LOCAL_CODING_TOOL_NAMES.len(),
+            44,
+            "Browser must not expand Local Coding"
+        );
+        assert_eq!(
+            adaptive_runtime_direct_tool_definitions().len(),
+            28,
+            "Browser must not expand Adaptive startup direct schemas"
+        );
+        for tool_name in ["browser_observe", "browser_act"] {
+            assert_eq!(
+                ModelSurface::LocalCoding.runtime_tool_invocation_route(tool_name),
+                (TOOL_SURFACE_AVAILABILITY_UNAVAILABLE, None)
+            );
+            assert_eq!(
+                ModelSurface::AdaptiveRuntime.runtime_tool_invocation_route(tool_name),
+                (
+                    TOOL_SURFACE_AVAILABILITY_GATEWAY,
+                    Some(ADAPTIVE_RUNTIME_GATEWAY_TOOL_NAME)
+                )
+            );
+            assert_eq!(
+                ModelSurface::FullOperatorRuntime.runtime_tool_invocation_route(tool_name),
+                (TOOL_SURFACE_AVAILABILITY_DIRECT, None)
+            );
+        }
+    }
+
+    #[test]
     fn adaptive_runtime_routes_every_local_coding_compatibility_tool() {
         for tool_name in LOCAL_CODING_TOOL_NAMES {
             let (availability, via) =

@@ -296,6 +296,11 @@ pub fn generated_runner_config_toml(opts: &RunnerInitOptions) -> Result<String, 
             // running binary and are never inferred from project/file capabilities.
             skill_runtime: false,
             skill_management: false,
+            // Browser availability is a process-local executable/runtime fact.
+            // Generated config must not claim Browser capabilities.
+            browser_observe: false,
+            browser_control: false,
+            browser_launch: false,
             // Desktop observation is a runtime/platform capability and is never
             // claimed by generated static config.
             computer_observe: false,

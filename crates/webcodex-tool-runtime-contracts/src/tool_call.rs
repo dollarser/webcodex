@@ -629,6 +629,144 @@ impl ComputerControlToolCall {
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq, Eq)]
+#[serde(tag = "action", rename_all = "snake_case", deny_unknown_fields)]
+pub enum BrowserObserveToolCall {
+    Targets,
+    Browsers {
+        client_id: String,
+    },
+    Pages {
+        client_id: String,
+        browser_id: String,
+        #[serde(default)]
+        limit: Option<usize>,
+    },
+    Snapshot {
+        client_id: String,
+        browser_id: String,
+        page_id: String,
+    },
+    Screenshot {
+        client_id: String,
+        browser_id: String,
+        page_id: String,
+    },
+}
+
+impl BrowserObserveToolCall {
+    pub const fn action_name(&self) -> &'static str {
+        match self {
+            Self::Targets => "targets",
+            Self::Browsers { .. } => "browsers",
+            Self::Pages { .. } => "pages",
+            Self::Snapshot { .. } => "snapshot",
+            Self::Screenshot { .. } => "screenshot",
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, Deserialize, Serialize, PartialEq, Eq)]
+#[serde(rename_all = "snake_case")]
+pub enum BrowserKeyCall {
+    Enter,
+    Tab,
+    Escape,
+    Backspace,
+    Delete,
+    ArrowUp,
+    ArrowDown,
+    ArrowLeft,
+    ArrowRight,
+    Home,
+    End,
+    PageUp,
+    PageDown,
+    Space,
+}
+
+impl BrowserKeyCall {
+    pub const fn as_str(self) -> &'static str {
+        match self {
+            Self::Enter => "enter",
+            Self::Tab => "tab",
+            Self::Escape => "escape",
+            Self::Backspace => "backspace",
+            Self::Delete => "delete",
+            Self::ArrowUp => "arrow_up",
+            Self::ArrowDown => "arrow_down",
+            Self::ArrowLeft => "arrow_left",
+            Self::ArrowRight => "arrow_right",
+            Self::Home => "home",
+            Self::End => "end",
+            Self::PageUp => "page_up",
+            Self::PageDown => "page_down",
+            Self::Space => "space",
+        }
+    }
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq, Eq)]
+#[serde(tag = "action", rename_all = "snake_case", deny_unknown_fields)]
+pub enum BrowserActToolCall {
+    Launch {
+        client_id: String,
+    },
+    NewPage {
+        client_id: String,
+        browser_id: String,
+    },
+    Navigate {
+        client_id: String,
+        browser_id: String,
+        page_id: String,
+        url: String,
+    },
+    Click {
+        client_id: String,
+        browser_id: String,
+        page_id: String,
+        element_id: String,
+    },
+    InputText {
+        client_id: String,
+        browser_id: String,
+        page_id: String,
+        element_id: String,
+        text: String,
+    },
+    Key {
+        client_id: String,
+        browser_id: String,
+        page_id: String,
+        key: BrowserKeyCall,
+    },
+    ClosePage {
+        client_id: String,
+        browser_id: String,
+        page_id: String,
+    },
+    CloseBrowser {
+        client_id: String,
+        browser_id: String,
+    },
+}
+
+impl BrowserActToolCall {
+    pub const fn action_name(&self) -> &'static str {
+        match self {
+            Self::Launch { .. } => "launch",
+            Self::NewPage { .. } => "new_page",
+            Self::Navigate { .. } => "navigate",
+            Self::Click { .. } => "click",
+            Self::InputText { .. } => "input_text",
+            Self::Key { .. } => "key",
+            Self::ClosePage { .. } => "close_page",
+            Self::CloseBrowser { .. } => "close_browser",
+        }
+    }
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq, Eq)]
 #[serde(deny_unknown_fields)]
 pub struct ComputerSnapshotRegion {
     pub x: u32,
@@ -2338,6 +2476,12 @@ pub enum ToolCall {
         session_id: Option<String>,
     },
 
+    /// Read-only Browser observation gateway with closed typed actions.
+    BrowserObserve(BrowserObserveToolCall),
+
+    /// Effectful Browser gateway with action-sensitive authority resolved before dispatch.
+    BrowserAct(BrowserActToolCall),
+
     /// Read-only Computer observation gateway. The closed action enum preserves exact per-action semantics.
     ComputerObserve(ComputerObserveToolCall),
 
@@ -3162,6 +3306,8 @@ impl ToolCall {
             Self::GotoDefinition { .. } => "goto_definition",
             Self::FindReferences { .. } => "find_references",
             Self::CallHierarchy { .. } => "call_hierarchy",
+            Self::BrowserObserve(..) => "browser_observe",
+            Self::BrowserAct(..) => "browser_act",
             Self::ComputerObserve(..) => "computer_observe",
             Self::ComputerControl(..) => "computer_control",
             Self::ComputerSaveSnapshot { .. } => "computer_save_snapshot",
@@ -3397,5 +3543,47 @@ impl ToolCall {
             Self::SessionHandoffSummary { project, .. } => project.as_deref(),
             _ => None,
         }
+    }
+}
+
+#[cfg(test)]
+mod browser_call_contract_tests {
+    use super::*;
+    use serde_json::json;
+
+    #[test]
+    fn browser_observe_and_act_parse_only_closed_typed_actions() {
+        assert!(matches!(
+            ToolCall::from_tool_name("browser_observe", json!({"action":"targets"})).unwrap(),
+            ToolCall::BrowserObserve(BrowserObserveToolCall::Targets)
+        ));
+        assert!(matches!(
+            ToolCall::from_tool_name(
+                "browser_act",
+                json!({
+                    "action":"input_text",
+                    "client_id":"runner",
+                    "browser_id":"browser_abcdefghijklmnop",
+                    "page_id":"page_abcdefghijklmnop",
+                    "element_id":"element_abcdefghijklmnop",
+                    "text":"secret"
+                })
+            )
+            .unwrap(),
+            ToolCall::BrowserAct(BrowserActToolCall::InputText { .. })
+        ));
+
+        for invalid in [
+            json!({"action":"future_browser_action"}),
+            json!({"action":"launch","client_id":"runner","unexpected":true}),
+            json!({"action":"navigate","client_id":"runner","browser_id":"browser_abcdefghijklmnop","page_id":"page_abcdefghijklmnop"}),
+        ] {
+            assert!(ToolCall::from_tool_name("browser_act", invalid).is_err());
+        }
+        assert!(ToolCall::from_tool_name(
+            "browser_observe",
+            json!({"action":"snapshot","client_id":"runner","browser_id":"browser_abcdefghijklmnop","page_id":"page_abcdefghijklmnop","unexpected":true})
+        )
+        .is_err());
     }
 }

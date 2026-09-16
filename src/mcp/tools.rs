@@ -373,7 +373,7 @@ pub(super) fn project_connector_tools_list_payload_with_compact(compact: bool) -
     project_connector_tools_list_payload_for_auth(compact, None)
 }
 
-fn adapt_computer_observe_output_schema_for_mcp(spec: &mut ToolSpec) {
+fn adapt_native_image_output_schema_for_mcp(spec: &mut ToolSpec) {
     let properties = spec
         .output_schema
         .pointer_mut("/properties/output/properties")
@@ -834,8 +834,8 @@ fn log_agent_continuation_app_result(
 
 fn mcp_tool_spec_json(mut spec: ToolSpec, compact: bool, app_enabled: bool) -> Value {
     let tool_name = spec.name.clone();
-    if tool_name == "computer_observe" {
-        adapt_computer_observe_output_schema_for_mcp(&mut spec);
+    if matches!(tool_name.as_str(), "computer_observe" | "browser_observe") {
+        adapt_native_image_output_schema_for_mcp(&mut spec);
     }
     if tool_name == "read_project_artifact" {
         if let Some(properties) = spec.input_schema["properties"].as_object_mut() {

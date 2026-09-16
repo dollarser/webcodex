@@ -1864,6 +1864,9 @@ impl ToolRuntime {
                 self.dispatch_workspace_checkpoint_tool(call).await
             }
 
+            ToolCall::BrowserObserve(_) | ToolCall::BrowserAct(_) => ToolResult::err(
+                "Browser gateways must pass action-sensitive specialized governance".to_string(),
+            ),
             ToolCall::ComputerObserve(_) | ToolCall::ComputerControl(_) => ToolResult::err(
                 "Computer gateways must pass action-sensitive specialized governance".to_string(),
             ),

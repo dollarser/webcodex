@@ -3,7 +3,7 @@ use super::lsp::{handle_lsp_operation, LspSupervisor};
 use super::transport::ResultSubmission;
 use super::validation::handle_validation_request;
 use super::{
-    handle_computer_operation, handle_prepare_managed_worktree_operation,
+    handle_browser_operation, handle_computer_operation, handle_prepare_managed_worktree_operation,
     handle_project_lifecycle_operation, handle_project_operation,
     handle_resolve_or_register_project_operation, handle_runner_skill_request,
     run_internal_posix_script_with_profiles_and_execution_state,
@@ -338,6 +338,7 @@ pub(crate) fn dispatch_request_with_outcome(
     persistent_shells: &PersistentShellManager,
     project_registry_dir: &Path,
     lsp: &LspSupervisor,
+    browser: &webcodex_browser::BrowserSupervisor,
     request: RunnerRequest,
 ) -> Result<RunnerDispatchOutcome, SubmitResultError> {
     if runner_tool_trace_enabled() {
@@ -442,6 +443,11 @@ pub(crate) fn dispatch_request_with_outcome(
         }
         RunnerOperation::Computer(operation) => {
             let result = handle_computer_operation(&operation);
+            sink.submit_result_with_metadata(request_id, result, config, runtime)
+                .map(|_| true)
+        }
+        RunnerOperation::Browser(operation) => {
+            let result = handle_browser_operation(browser, &operation);
             sink.submit_result_with_metadata(request_id, result, config, runtime)
                 .map(|_| true)
         }
@@ -697,6 +703,7 @@ pub(crate) fn dispatch_request(
         persistent_shells,
         project_registry_dir,
         lsp,
+        &webcodex_browser::BrowserSupervisor::new(),
         request,
     )
     .map(|outcome| outcome.handled)

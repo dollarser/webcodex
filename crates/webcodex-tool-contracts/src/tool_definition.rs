@@ -8,6 +8,7 @@
 mod agent_tasks;
 mod agent_waits;
 mod artifacts;
+mod browser;
 #[cfg(feature = "workspace-checkpoints")]
 mod checkpoints;
 mod coding_agents;
@@ -513,6 +514,8 @@ impl ToolAuditResultField {
 pub enum ToolAuditSemanticResultPolicy {
     /// Project heterogeneous Computer observation results into the same sparse,
     /// privacy-preserving metadata retained by the pre-gateway read tools.
+    BrowserObservation,
+    BrowserControl,
     ComputerObservation,
     /// Project heterogeneous Computer control results into the sparse lifecycle
     /// metadata retained by the pre-gateway effect tools.
@@ -998,6 +1001,7 @@ pub const TOOL_CATEGORY_AGENT_WAIT: &str = "agent_wait";
 pub const TOOL_CATEGORY_ARTIFACT: &str = "artifact";
 pub const TOOL_CATEGORY_CHECKPOINT: &str = "checkpoint";
 pub const TOOL_CATEGORY_CODING_AGENT: &str = "coding_agent";
+pub const TOOL_CATEGORY_BROWSER: &str = "browser";
 pub const TOOL_CATEGORY_COMPUTER: &str = "computer";
 pub const TOOL_CATEGORY_COMMUNICATION: &str = "communication";
 pub const TOOL_CATEGORY_CLEANUP: &str = "cleanup";
@@ -1014,6 +1018,7 @@ pub const TOOL_CATEGORY_SESSION: &str = "session";
 pub const TOOL_CATEGORY_VALIDATION: &str = "validation";
 
 pub const PERMISSION_RISK_ARTIFACT_WRITE: &str = "artifact_write";
+pub const PERMISSION_RISK_BROWSER_CONTROL: &str = "browser_control";
 pub const PERMISSION_RISK_DESTRUCTIVE: &str = "destructive";
 pub const PERMISSION_RISK_JOB: &str = "job";
 pub const PERMISSION_RISK_PATCH: &str = "patch";
@@ -1293,6 +1298,7 @@ const TOOL_DEFINITION_GROUPS: &[&[ToolDefinition]] = &[
     #[cfg(feature = "workspace-checkpoints")]
     checkpoints::DEFINITIONS,
     coding_agents::DEFINITIONS,
+    browser::DEFINITIONS,
     computer::DEFINITIONS,
     diagnostics::DEFINITIONS,
     discovery::DEFINITIONS,

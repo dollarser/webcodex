@@ -3,6 +3,7 @@ use serde_json::Value;
 mod agent_tasks;
 mod agent_waits;
 mod artifacts;
+mod browser;
 #[cfg(feature = "workspace-checkpoints")]
 mod checkpoints;
 mod coding_agents;
@@ -40,6 +41,9 @@ pub fn output_schema_for_tool(name: &str) -> Value {
         return schema;
     }
     if let Some(schema) = coding_agents::output_schema_for_tool(name) {
+        return schema;
+    }
+    if let Some(schema) = browser::output_schema_for_tool(name) {
         return schema;
     }
     if let Some(schema) = computer::output_schema_for_tool(name) {
