@@ -51,7 +51,7 @@ pub fn run_skill_resource_input_schema() -> Value {
         "type": "string",
         "minLength": 9,
         "maxLength": MAX_SKILL_RESOURCE_PATH_CHARS,
-        "pattern": "^scripts/",
+        "pattern": "^scripts/.+$",
         "description": "Skill-package-relative script path under scripts/. Absolute paths and traversal are rejected."
     }));
     properties.insert("expected_definition_revision".to_string(), json!({
@@ -65,7 +65,7 @@ pub fn run_skill_resource_input_schema() -> Value {
         "description": "Required for operator-installed Skills and forbidden for configured live Skills. Pins the immutable installed package revision."
     }));
     properties.remove("executable");
-    properties["args"]["description"] = json!("Ordered literal script arguments. WebCodex selects the interpreter and stdin-reading invocation from the trusted Skill resource extension, then appends these values after the interpreter's script marker. The Skill script body is never present in model arguments.");
+    properties["args"]["description"] = json!("Ordered literal script arguments. WebCodex selects the interpreter from the trusted Skill resource extension and preserves the selected Skill package/script execution identity while keeping the requested Project cwd. The Skill script body and Runner-native package path are never present in model arguments.");
     schema["required"] = json!([
         "project",
         "skill_id",
